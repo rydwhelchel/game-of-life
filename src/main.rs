@@ -92,16 +92,16 @@ fn get_neighbors(coords: Coords, game: &GameOfLife) -> Vec<Cell> {
     cells
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 struct GameOfLife {
-    board: [[Cell; 50]; 25],
+    board: Vec<Vec<Cell>>,
 }
 
 impl GameOfLife {
-    fn new(live_cells: Vec<Coords>) -> Self {
-        let mut new_frame: [[Cell; 50]; 25] = [[Cell::new(State::Dead); 50]; 25];
+    fn new(x: usize, y: usize, live_cells: Vec<Coords>) -> Self {
+        let mut new_frame: Vec<Vec<Cell>> = vec![vec![Cell::new(State::Dead); x]; y];
         for cell in live_cells {
-            new_frame[cell.y][cell.x] = Cell {
+            *new_frame.get_mut(cell.y).unwrap().get_mut(cell.x).unwrap() = Cell {
                 state: State::Alive,
             };
         }
@@ -109,8 +109,18 @@ impl GameOfLife {
         GameOfLife { board: new_frame }
     }
 
+    fn max_x(&self) -> usize {
+        self.board.get(0).unwrap().len()
+    }
+
+    fn max_y(&self) -> usize {
+        self.board.len()
+    }
+
     fn next_frame(&self) -> GameOfLife {
-        let mut new_frame: [[Cell; 50]; 25] = [[Cell::new(State::Dead); 50]; 25];
+        let max_x = self.max_x();
+        let max_y = self.max_y();
+        let mut new_frame: Vec<Vec<Cell>> = vec![vec![Cell::new(State::Dead); max_x]; max_y];
         let mut y = 0;
         while y < 25 {
             let mut x = 0;
@@ -126,7 +136,7 @@ impl GameOfLife {
     }
 
     fn get_cell_at(&self, coords: Coords) -> Cell {
-        self.board[coords.y][coords.x]
+        *self.board.get(coords.y).unwrap().get(coords.x).unwrap()
     }
 }
 
@@ -158,67 +168,71 @@ fn main() {
     let max_cycles = 100;
     let mut cycle = 0;
 
-    let start_frame = GameOfLife::new(vec![
-        // Blinker
-        Coords { x: 0, y: 1 },
-        Coords { x: 1, y: 1 },
-        Coords { x: 2, y: 1 },
-        //Glider
-        Coords { x: 6, y: 0 },
-        Coords { x: 6, y: 1 },
-        Coords { x: 6, y: 2 },
-        Coords { x: 5, y: 2 },
-        Coords { x: 4, y: 1 },
-        //Pulsar
-        Coords { x: 5, y: 13 },
-        Coords { x: 5, y: 14 },
-        Coords { x: 5, y: 15 },
-        Coords { x: 5, y: 19 },
-        Coords { x: 5, y: 20 },
-        Coords { x: 5, y: 21 },
-        Coords { x: 10, y: 13 },
-        Coords { x: 10, y: 14 },
-        Coords { x: 10, y: 15 },
-        Coords { x: 10, y: 19 },
-        Coords { x: 10, y: 20 },
-        Coords { x: 10, y: 21 },
-        Coords { x: 12, y: 13 },
-        Coords { x: 12, y: 14 },
-        Coords { x: 12, y: 15 },
-        Coords { x: 12, y: 19 },
-        Coords { x: 12, y: 20 },
-        Coords { x: 12, y: 21 },
-        Coords { x: 17, y: 13 },
-        Coords { x: 17, y: 14 },
-        Coords { x: 17, y: 15 },
-        Coords { x: 17, y: 19 },
-        Coords { x: 17, y: 20 },
-        Coords { x: 17, y: 21 },
-        Coords { x: 7, y: 11 },
-        Coords { x: 8, y: 11 },
-        Coords { x: 9, y: 11 },
-        Coords { x: 13, y: 11 },
-        Coords { x: 14, y: 11 },
-        Coords { x: 15, y: 11 },
-        Coords { x: 7, y: 16 },
-        Coords { x: 8, y: 16 },
-        Coords { x: 9, y: 16 },
-        Coords { x: 13, y: 16 },
-        Coords { x: 14, y: 16 },
-        Coords { x: 15, y: 16 },
-        Coords { x: 7, y: 18 },
-        Coords { x: 8, y: 18 },
-        Coords { x: 9, y: 18 },
-        Coords { x: 13, y: 18 },
-        Coords { x: 14, y: 18 },
-        Coords { x: 15, y: 18 },
-        Coords { x: 7, y: 23 },
-        Coords { x: 8, y: 23 },
-        Coords { x: 9, y: 23 },
-        Coords { x: 13, y: 23 },
-        Coords { x: 14, y: 23 },
-        Coords { x: 15, y: 23 },
-    ]);
+    let start_frame = GameOfLife::new(
+        50,
+        25,
+        vec![
+            // Blinker
+            Coords { x: 0, y: 1 },
+            Coords { x: 1, y: 1 },
+            Coords { x: 2, y: 1 },
+            //Glider
+            Coords { x: 6, y: 0 },
+            Coords { x: 6, y: 1 },
+            Coords { x: 6, y: 2 },
+            Coords { x: 5, y: 2 },
+            Coords { x: 4, y: 1 },
+            //Pulsar
+            Coords { x: 5, y: 13 },
+            Coords { x: 5, y: 14 },
+            Coords { x: 5, y: 15 },
+            Coords { x: 5, y: 19 },
+            Coords { x: 5, y: 20 },
+            Coords { x: 5, y: 21 },
+            Coords { x: 10, y: 13 },
+            Coords { x: 10, y: 14 },
+            Coords { x: 10, y: 15 },
+            Coords { x: 10, y: 19 },
+            Coords { x: 10, y: 20 },
+            Coords { x: 10, y: 21 },
+            Coords { x: 12, y: 13 },
+            Coords { x: 12, y: 14 },
+            Coords { x: 12, y: 15 },
+            Coords { x: 12, y: 19 },
+            Coords { x: 12, y: 20 },
+            Coords { x: 12, y: 21 },
+            Coords { x: 17, y: 13 },
+            Coords { x: 17, y: 14 },
+            Coords { x: 17, y: 15 },
+            Coords { x: 17, y: 19 },
+            Coords { x: 17, y: 20 },
+            Coords { x: 17, y: 21 },
+            Coords { x: 7, y: 11 },
+            Coords { x: 8, y: 11 },
+            Coords { x: 9, y: 11 },
+            Coords { x: 13, y: 11 },
+            Coords { x: 14, y: 11 },
+            Coords { x: 15, y: 11 },
+            Coords { x: 7, y: 16 },
+            Coords { x: 8, y: 16 },
+            Coords { x: 9, y: 16 },
+            Coords { x: 13, y: 16 },
+            Coords { x: 14, y: 16 },
+            Coords { x: 15, y: 16 },
+            Coords { x: 7, y: 18 },
+            Coords { x: 8, y: 18 },
+            Coords { x: 9, y: 18 },
+            Coords { x: 13, y: 18 },
+            Coords { x: 14, y: 18 },
+            Coords { x: 15, y: 18 },
+            Coords { x: 7, y: 23 },
+            Coords { x: 8, y: 23 },
+            Coords { x: 9, y: 23 },
+            Coords { x: 13, y: 23 },
+            Coords { x: 14, y: 23 },
+            Coords { x: 15, y: 23 },
+        ],
+    );
     let mut curr_frame = start_frame;
     let duration = Duration::from_millis(millis);
     println!("Starting Conway's game of life!");
@@ -237,16 +251,24 @@ fn main() {
 
 #[test]
 fn test_alternator() {
-    let gol = GameOfLife::new(vec![
-        Coords { x: 0, y: 1 },
-        Coords { x: 1, y: 1 },
-        Coords { x: 2, y: 1 },
-    ]);
-    let second_frame = GameOfLife::new(vec![
-        Coords { x: 1, y: 0 },
-        Coords { x: 1, y: 1 },
-        Coords { x: 1, y: 2 },
-    ]);
+    let gol = GameOfLife::new(
+        5,
+        5,
+        vec![
+            Coords { x: 0, y: 1 },
+            Coords { x: 1, y: 1 },
+            Coords { x: 2, y: 1 },
+        ],
+    );
+    let second_frame = GameOfLife::new(
+        5,
+        5,
+        vec![
+            Coords { x: 1, y: 0 },
+            Coords { x: 1, y: 1 },
+            Coords { x: 1, y: 2 },
+        ],
+    );
 
     assert_eq!(gol.next_frame(), second_frame)
 }
