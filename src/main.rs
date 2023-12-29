@@ -92,7 +92,7 @@ fn get_neighbors(coords: Coords, game: &GameOfLife) -> Vec<Cell> {
     cells
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 struct GameOfLife {
     board: [[Cell; 50]; 25],
 }
@@ -130,7 +130,7 @@ impl GameOfLife {
     }
 }
 
-impl std::fmt::Debug for GameOfLife {
+impl std::fmt::Display for GameOfLife {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), std::fmt::Error> {
         let mut y = 0;
         while y < self.board.len() {
@@ -223,14 +223,14 @@ fn main() {
     let duration = Duration::from_millis(millis);
     println!("Starting Conway's game of life!");
     println!("Here is our starting frame: ");
-    println!("{:?}", curr_frame);
+    println!("{}", curr_frame);
     thread::sleep(duration);
 
     while cycle < max_cycles {
         cycle += 1;
         curr_frame = curr_frame.next_frame();
         println!("{} cycles:", cycle);
-        println!("{:?}", curr_frame);
+        println!("{}", curr_frame);
         thread::sleep(duration);
     }
 }
